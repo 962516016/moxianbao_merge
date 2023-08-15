@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>风电数据综合分析展示平台</title>
+    <link href="../favicon.ico" rel="shortcut icon"/>
+    <link href="../static/css/index.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+<header>
+    <div class="p-2">
+        <label for="turb-input" style="width: 12%">
+            <span style="font-weight: bold;color: white;font-size: 13px">请选择风场： </span>
+            <select class="input timeinput" id="turb-input" onchange="visualchange()"
+                    style="background-color: #0A133E;color: white;border: none">
+                <option>11</option>
+                <option>12</option>
+                <option selected>13</option>
+                <option>14</option>
+                <option>15</option>
+                <option>16</option>
+                <option>17</option>
+                <option>18</option>
+                <option>19</option>
+                <option>20</option>
+            </select>
+        </label>
+    </div>
+    <h1>风 电 数 据 综 合 分 析 展 示 平 台</h1>
+    <div class="showTime">
+        {% if username %}
+        <span href='#' style='text-decoration: none; color: rgba(255, 255, 255, 0.7)'>欢迎您，{{username}}，</span>
+        {% else %}
+        <span href='#' style='text-decoration: none; color: rgba(255, 255, 255, 0.7)'>您尚未登录，</span>
+        {% endif %}
+        <a href='/index' style='text-decoration: none; color: rgba(255, 255, 255, 0.7)'>返回主页</a>
+    </div>
+</header>
+
+<section class="mainbox">
+    {% if username %}
+    <div class="column" id="left">
+        <div class="panel bar">
+            <h2>
+                <span id="year">2020</span>年 <span id="leftupid">13</span>号风场各月份风场累计供电量
+                <span style="font-size: 10px;display: none">
+                    <a id="2020" href="javascript:;">2020</a>
+                    <a id="2021" href="javascript:;">2021</a>
+                    <a id="2022" href="javascript:;">2022</a>
+                </span>
+            </h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+        <div class="panel line">
+            <h2>风场 - <span id="leftmiddleid">13</span> <span style="font-weight: bold">发电功率实时预测</span></h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+        <div class="panel pie1">
+            <h2>风场 - <span id="leftdownid">13</span> <span style="font-weight: bold">风向统计</span></h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <div class="column" id="middle">
+        <div class="no">
+            <div class="no-hd">
+                <ul>
+                    <li id="datetime"></li>
+                    <script>
+                        var datetime_dom = document.getElementById('datetime');
+                        var currentDate = new Date();
+
+                        var year = currentDate.getFullYear();  // 获取当前年份
+                        var month = ('0' + (currentDate.getMonth() + 1)).slice(-2);  // 获取当前月份，并补零
+                        var day = ('0' + currentDate.getDate()).slice(-2);  // 获取当前日期，并补零
+                        var hours = ('0' + currentDate.getHours()).slice(-2);  // 获取当前小时，并补零
+                        var minutes = ('0' + currentDate.getMinutes()).slice(-2);  // 获取当前分钟，并补零
+                        var seconds = ('0' + currentDate.getSeconds()).slice(-2);  // 获取当前秒数，并补零
+
+                        var formattedDate = year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+
+                        console.log(formattedDate);  // 输出格式化后的日期和时间
+
+                        datetime_dom.innerHTML = formattedDate
+                    </script>
+                    <!--                    <li id="yd15">136080275</li>-->
+                    <!--                    <li id="pre_yd15">137281894</li>-->
+                </ul>
+            </div>
+            <!--            <div class="no-bd">-->
+            <!--                <ul>-->
+            <!--                    <li>当前时间</li>-->
+            <!--                    &lt;!&ndash;                    <li>全风场累计供电量</li>&ndash;&gt;-->
+            <!--                    &lt;!&ndash;                    <li>全风场累计发电量</li>&ndash;&gt;-->
+            <!--                </ul>-->
+            <!--            </div>-->
+        </div>
+        <div class="map">
+            <div class="chart"></div>
+            <div class="map1"></div>
+            <div class="map2"></div>
+            <div class="map3"></div>
+        </div>
+    </div>
+    <div class="column" id="right">
+        <div class="panel bar1">
+            <h2>风场累计供电量</h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+        <div class="panel line1">
+            <h2>风场 - <span id="rightmiddleid">13</span> <span style="font-weight: bold">供电功率实时预测</span></h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+        <div class="panel pie">
+            <h2>风场地区分布</h2>
+            <div class="chart"></div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <style>
+
+    </style>
+
+    {% else %}
+    <div class="column position-relative d-flex justify-content-center align-items-center">
+        <span class="position-absolute " style="top: 50%;left: 50%;transform: translate(-50%, -50%)">
+            <a href="/" style="font-size: 40px">请登录</a>
+        </span>
+    </div>
+    {% endif %}
+</section>
+<script>
+    function visualchange() {
+        var id = document.getElementById('turb-input').value;
+        document.getElementById('leftupid').innerText = id
+        document.getElementById('leftdownid').innerText = id
+        document.getElementById('leftmiddleid').innerText = id
+        document.getElementById('rightmiddleid').innerText = id
+    }
+</script>
+<script src="../static/js/flexible.js"></script>
+<script src="../static/js/jquery.js"></script>
+<script src="../static/js/echarts.min.js"></script>
+<script src="../static/js/index.js"></script>
+<script src="../static/js/china.js"></script>
+<script src="../static/js/myMap.js"></script>
+
+
+</body>
+</html>

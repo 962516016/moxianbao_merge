@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>模型管理(管理员)-油专特供</title>
+    <link href="../static/css/typicons.css" rel="stylesheet">
+    <link href="../static/css/vendor.bundle.base.css" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/dragula/$VERSION/dragula.min.js'></script>
+</head>
+
+<body>
+<i id="bannerClose"></i>
+<div class="container-scroller">
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo" href=""><img alt="logo" src="static/picture/logo.svg"></a>
+            <a class="navbar-brand brand-logo-mini" href=""><img alt="logo" src="static/picture/logo-mini.svg"></a>
+            <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" data-toggle="minimize"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if username %}
+                    <span style="font-weight: bold">欢迎您, {{ username }}</span>
+                    <a class="nav-link" href="/logout">
+                        退出登录
+                    </a>
+                    {% else %}
+                    <span style="font-weight: bold;--xr-font-color0: true">您好, 请</span>
+                    <a class="nav-link" href="/">
+                        点此登录
+                    </a>
+                    {% endif %}
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" data-toggle="offcanvas"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+    </nav>
+    <div class="container-fluid page-body-wrapper">
+        <div id="nav-placeholder">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+
+            </nav>
+        </div>
+        {% if username %}
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row flex-grow" style="height: 55%!important;">
+                    <div class="col-lg-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body" style="height: 550px">
+                                <h4 class="card-title">模型文件</h4>
+                                <button class="btn btn-outline-success" id="add_models_to_pool">
+                                    添加
+                                </button>
+                                <button class="btn btn-outline-danger" id="delete_modes">
+                                    删除
+                                </button>
+                                <div class="table-responsive" style="height: 70%!important;">
+                                    <table class="table table-hover" id="model_table1">
+                                        <thead>
+                                        <tr>
+                                            <th>模型名称</th>
+                                            <th>相似度</th>
+                                            <th>选择</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="left">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 grid-margin stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">已融合模型</h4>
+                                <button class="btn btn-outline-danger" id="remove_models_from_pool">
+                                    移除
+                                </button>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="model_table2">
+                                        <thead>
+                                        <tr>
+                                            <th>模型名称</th>
+                                            <th>相似度</th>
+                                            <th>选择</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+            <div id="footer-placeholder">
+
+            </div>
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+        {% else %}
+        <!--        没登录啥都不显示-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <span style="text-align: center;font-size: 40px">
+                    <a href="/">请登录</a>
+                </span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+
+<script src="../static/js/vendor.bundle.base.js"></script>
+<script src="../static/js/off-canvas.js"></script>
+<script src="../static/js/hoverable-collapse.js"></script>
+<script src="../static/js/template.js"></script>
+<script src="../static/js/settings.js"></script>
+<script src="../static/js/todolist.js"></script>
+<script src="../static/js/nav-footer_loader.js"></script>
+<script>
+    function updatetable() {
+        axios.get('/get_modelname')
+            .then(res => {
+                let name1 = Object.entries(res.data)[0][1];
+                let name2 = Object.entries(res.data)[1][1];
+
+                // 假设通过后端获取到的文件名列表为fileNames
+                var fileNames1 = name1;
+                var fileNames2 = name2;
+                // 获取表格的tbody元素
+                var tableBody1 = document.querySelector('#model_table1 tbody');
+                var tableBody2 = document.querySelector('#model_table2 tbody');
+                tableBody1.innerHTML = '';
+                tableBody2.innerHTML = '';
+                // 遍历文件名列表，生成表格行并添加到表格中
+                for (var i = 0; i < fileNames1.length; i++) {
+                    var fileName = fileNames1[i];
+                    var row = document.createElement('tr');
+                    row.draggable = true; // 设置元素可拖动
+                    row.ondragstart = dragStart;
+                    var cell1 = document.createElement('td');
+                    cell1.textContent = fileName.slice(0, -10) + '.pkl';
+
+                    var cell2 = document.createElement('td');
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    cell2.appendChild(checkbox);
+
+                    var cell3 = document.createElement('td');
+                    cell3.textContent = fileName.slice(-9, -7) + '.' + fileName.slice(-7, -4);
+
+                    row.appendChild(cell1);
+                    row.appendChild(cell3);
+                    row.appendChild(cell2);
+                    tableBody1.appendChild(row);
+                }
+                for (var i = 0; i < fileNames2.length; i++) {
+                    var fileName = fileNames2[i];
+                    console.log(fileName)
+                    if (fileName !== 'model1.pkl' && fileName !== 'model2.pkl') {
+                        var row = document.createElement('tr');
+                        row.draggable = true; // 设置元素可拖动
+                        row.ondragstart = dragStart;
+                        var cell1 = document.createElement('td');
+                        cell1.textContent = fileName.slice(0, -10) + '.pkl';
+
+
+                        var cell2 = document.createElement('td');
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        cell2.appendChild(checkbox);
+
+                        var cell3 = document.createElement('td');
+                        cell3.textContent = fileName.slice(-9, -7) + '.' + fileName.slice(-7, -4);
+
+                        row.appendChild(cell1);
+                        row.appendChild(cell3);
+                        row.appendChild(cell2);
+                        tableBody2.appendChild(row);
+                    } else {
+                        console.log('111')
+                        var row = document.createElement('tr');
+                        var cell1 = document.createElement('td');
+                        cell1.textContent = fileName;
+
+                        row.appendChild(cell1);
+                        tableBody2.appendChild(row);
+                    }
+
+                }
+            })
+            .catch(err => {
+                console.error('axios请求错误' + err)
+            })
+
+    }
+
+    var table1 = document.getElementById('model_table1');
+    var table2 = document.getElementById('model_table2');
+
+    table1.addEventListener('dragover', dragOver);
+    table1.addEventListener('drop', drop_from_table2);
+    table2.addEventListener('dragover', dragOver);
+    table2.addEventListener('drop', drop_from_table1);
+
+    function dragStart(event) {
+        // 设置被拖动数据的类型和值
+        var rowData = event.target.innerHTML;
+        event.dataTransfer.setData('text/html', rowData);
+    }
+
+    function dragOver(event) {
+        // 阻止默认的拖放行为
+        event.preventDefault();
+    }
+
+    function drop_from_table2(event) {
+        // 阻止默认的拖放行为
+        event.preventDefault();
+        // 获取被拖动的行数据
+        var draggedData = event.dataTransfer.getData('text/html');
+        console.log('拖动的数据1', draggedData)
+        // 在目标表格中插入被拖动的行
+        var newRow = document.createElement('tr');
+        newRow.innerHTML = draggedData;
+        newRow.draggable = true; // 设置元素可拖动
+        newRow.ondragstart = dragStart;
+
+        var selectedColumn = [];
+        var fileName = newRow.cells[0].textContent;
+        var value = newRow.cells[1].textContent;
+        fileName = fileName.slice(0, -4);
+        fileName = fileName + '_' + value.slice(0, 2) + value.slice(3, 6) + '.pkl'
+        selectedColumn.push(fileName);
+
+
+        // 将选中的列数据发送到后端
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/remove_models_from_pool');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                // 处理后端响应
+                if (xhr.status === 200) {
+                    updatetable();
+                    console.log(xhr.responseText);
+                } else {
+                    // 请求失败
+                    console.error('请求失败');
+                }
+            }
+        };
+        xhr.send(JSON.stringify(selectedColumn));
+    }
+
+    function drop_from_table1(event) {
+        // 阻止默认的拖放行为
+        event.preventDefault();
+        // 获取被拖动的行数据
+        var draggedData = event.dataTransfer.getData('text/html');
+        console.log('拖动的数据1', draggedData)
+        // 在目标表格中插入被拖动的行
+        var newRow = document.createElement('tr');
+        newRow.innerHTML = draggedData;
+        newRow.draggable = true; // 设置元素可拖动
+        newRow.ondragstart = dragStart;
+
+        var selectedColumn = [];
+        var fileName = newRow.cells[0].textContent;
+        var value = newRow.cells[1].textContent;
+        fileName = fileName.slice(0, -4);
+        fileName = fileName + '_' + value.slice(0, 2) + value.slice(3, 6) + '.pkl'
+        selectedColumn.push(fileName);
+
+
+        // 将选中的列数据发送到后端
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/add_models_to_pool');
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                // 处理后端响应
+                if (xhr.status === 200) {
+                    updatetable();
+                    console.log(xhr.responseText);
+                } else {
+                    // 请求失败
+                    console.error('请求失败');
+                }
+            }
+        };
+        console.log(JSON.stringify(selectedColumn));
+        xhr.send(JSON.stringify(selectedColumn));
+    }
+
+    function addmodels() {
+        // 获取提交按钮元素
+        var addmodelBtn = document.querySelector('#add_models_to_pool');
+        // 添加点击事件处理程序
+        addmodelBtn.addEventListener('click', function () {
+            // 获取所有被选中的复选框
+            var checkboxes = document.querySelectorAll('#model_table1 tbody input[type="checkbox"]:checked');
+            // 构造选中的列数据
+            var selectedColumns1 = [];
+            checkboxes.forEach(function (checkbox) {
+                var row = checkbox.parentNode.parentNode;
+                var fileName = row.cells[0].textContent;
+                var value = row.cells[1].textContent;
+                fileName = fileName.slice(0, -4);
+                fileName = fileName + '_' + value.slice(0, 2) + value.slice(3, 6) + '.pkl'
+                selectedColumns1.push(fileName);
+            });
+            // 将选中的列数据发送到后端
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/add_models_to_pool');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    // 处理后端响应
+                    if (xhr.status === 200) {
+                        updatetable();
+                        console.log(xhr.responseText);
+                    } else {
+                        // 请求失败
+                        console.error('请求失败');
+                    }
+                }
+            };
+            console.log(selectedColumns1);
+            xhr.send(JSON.stringify(selectedColumns1));
+        });
+    }
+
+    function removemodels() {
+        // 获取提交按钮元素
+        var removemodelBtn = document.querySelector('#remove_models_from_pool');
+        // 添加点击事件处理程序
+        removemodelBtn.addEventListener('click', function () {
+            // 获取所有被选中的复选框
+            var checkboxes = document.querySelectorAll('#model_table2 tbody input[type="checkbox"]:checked');
+            // 构造选中的列数据
+            var selectedColumns2 = [];
+            checkboxes.forEach(function (checkbox) {
+                var row = checkbox.parentNode.parentNode;
+                var fileName = row.cells[0].textContent;
+                var value = row.cells[1].textContent;
+                fileName = fileName.slice(0, -4);
+                fileName = fileName + '_' + value.slice(0, 2) + value.slice(3, 6) + '.pkl'
+                selectedColumns2.push(fileName);
+            });
+            // 将选中的列数据发送到后端
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/remove_models_from_pool');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    // 处理后端响应
+                    if (xhr.status === 200) {
+                        updatetable();
+                        console.log(xhr.responseText);
+                    } else {
+                        // 请求失败
+                        console.error('请求失败');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(selectedColumns2));
+        });
+    }
+
+    function deletemodels() {
+        // 获取提交按钮元素
+        var deleteBtn = document.querySelector('#delete_modes');
+        // 添加点击事件处理程序
+        deleteBtn.addEventListener('click', function () {
+            // 获取所有被选中的复选框
+            var checkboxes = document.querySelectorAll('#model_table1 tbody input[type="checkbox"]:checked');
+            // 构造选中的列数据
+            var selectedColumns3 = [];
+            checkboxes.forEach(function (checkbox) {
+                var row = checkbox.parentNode.parentNode;
+                var fileName = row.cells[0].textContent;
+                var value = row.cells[1].textContent;
+                fileName = fileName.slice(0, -4);
+                fileName = fileName + '_' + value.slice(0, 2) + value.slice(3, 6) + '.pkl'
+                selectedColumns3.push(fileName);
+            });
+            // 将选中的列数据发送到后端
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/delete_models');
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === XMLHttpRequest.DONE) {
+                    // 处理后端响应
+                    if (xhr.status === 200) {
+                        updatetable();
+                        console.log(xhr.responseText);
+                    } else {
+                        // 请求失败
+                        console.error('请求失败');
+                    }
+                }
+            };
+            xhr.send(JSON.stringify(selectedColumns3));
+        });
+    }
+
+    updatetable();
+    addmodels();
+    removemodels();
+    deletemodels();
+</script>
+</body>
+
+</html>

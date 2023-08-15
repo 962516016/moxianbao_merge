@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>在线预测-油专特供</title>
+    <!-- base:css -->
+    <link href="../static/css/typicons.css" rel="stylesheet">
+    <link href="../static/css/vendor.bundle.base.css" rel="stylesheet">
+    <!-- endinject -->
+    <!-- plugin css for this page -->
+    <!-- End plugin css for this page -->
+    <!-- inject:css -->
+    <link href="../static/css/style.css" rel="stylesheet">
+    <!-- endinject -->
+    <script src="../static/js/modernizr-2.8.3.min.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/echarts.js"></script>
+    <script>
+        let flg_report = false;
+        let flg_predict = false;
+        let flg_ai = false;
+    </script>
+</head>
+<body>
+<i id="bannerClose"></i>
+<div class="container-scroller" id="root">
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo" href=""><img alt="logo" src="static/picture/logo.svg"></a>
+            <a class="navbar-brand brand-logo-mini" href=""><img alt="logo" src="static/picture/logo-mini.svg"></a>
+            <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" data-toggle="minimize"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if username %}
+                    <span style="font-weight: bold">欢迎您, {{ username }}</span>
+                    <a class="nav-link" href="/logout">
+                        退出登录
+                    </a>
+                    {% else %}
+                    <span style="font-weight: bold;--xr-font-color0: true">您好, 请</span>
+                    <a class="nav-link" href="/">
+                        点此登录
+                    </a>
+                    {% endif %}
+                </li>
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" data-toggle="offcanvas"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <div class="theme-setting-wrapper page-changer">
+            <div id="settings-trigger"><i class="typcn typcn-chevron-right-outline"></i></div>
+            <div class="settings-panel" id="theme-settings">
+                <i class="settings-close typcn typcn-delete-outline"></i>
+                <p class="settings-heading mt-3 mb-3" style="font-weight: bold; font-size: 20px">在线预测</p>
+                <a class="sidebar-bg-options" href="#" id="sidebar-upload"
+                   style="text-decoration: none;border: none">
+                    <div class=" typcn typcn-arrow-right-outline mr-2 " id="up-icon"></div>
+                    <span>上传数据</span>
+
+                </a>
+
+                <a class="sidebar-bg-options" href="#" id="sidebar-report" onclick="reportDisplay()"
+                   style="text-decoration: none">
+                    <div class=" typcn typcn-arrow-right-outline mr-2 "></div>
+                    数据分析
+
+                </a>
+
+                <a class="sidebar-bg-options" href="#" id="sidebar-predict" onclick="linechart()"
+                   style="text-decoration: none">
+                    <div class="typcn typcn-arrow-right-outline mr-2"></div>
+                    预测功率
+
+                </a>
+
+                <a class="sidebar-bg-options" href="#" id="sidebar-dialog" onclick="dialogDisplay()"
+                   style="text-decoration: none">
+                    <div class="typcn typcn-arrow-right-outline mr-2"></div>
+                    AI 分析
+
+                </a>
+
+                <a class="sidebar-bg-options" href="#" id="sidebar-download"
+                   style="text-decoration: none">
+                    <div class="typcn typcn-arrow-right-outline mr-2"></div>
+                    下载结果
+
+                </a>
+
+            </div>
+        </div>
+        <div id="nav-placeholder">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+
+            </nav>
+        </div>
+        {% if username %}
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row d-flex">
+                    <div class="col-lg-3 grid-margin page-starter stretch-card" id="left">
+                        <div class="card">
+                            <div class="card-body h-100">
+                                <!--上传数据-->
+                                <button id="uploadBtn"
+                                        style="width: 80%;height: auto;border-radius: 10px;font-weight: bold;background: white;margin-bottom: 10%;margin-top: 10%;margin-left: 10%">
+                                    <i class="my_typcn typcn-upload " style="height: 10%"></i><br>上传数据
+                                </button>
+                                <input id="fileInput" style="display: none;" type="file">
+                                <script>
+                                    document.getElementById('uploadBtn').addEventListener('click', function () {
+                                        document.getElementById('fileInput').click();
+                                    });
+                                </script>
+                                <script>
+                                    function upload(event) {
+                                        var file = event.target.files[0];
+                                        var formData = new FormData();
+                                        formData.append('file', file);
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.open('POST', '/upload_file', true);
+                                        xhr.send(formData);
+                                        var aitextarea = document.getElementById('aianswer');
+                                        example_linechart();
+                                        document.getElementById('chartContainer').style.display = 'block'
+                                        document.getElementById('dialogContainer').style.display = 'none'
+                                        document.getElementById('buttonsContainer').style.display = 'none'
+                                        flg_ai = false;
+                                        flg_report = false;
+                                        flg_predict = false;
+                                        aitextarea.value = '上传成功~';
+                                    }
+
+                                    document.getElementById('fileInput').addEventListener('change', upload);
+
+                                    document.getElementById('sidebar-upload').addEventListener('click', function () {
+                                        document.getElementById('fileInput').click();
+                                    });
+                                </script>
+
+                                <!--数据分析-->
+                                <button onclick="reportDisplay()"
+                                        style="width: 80%;height: auto;border-radius: 10px;font-weight: bold;background: white;margin-bottom: 10%;margin-left: 10%">
+                                    <i class="my_typcn typcn-chart-bar-outline"></i><br>数据分析
+                                </button>
+                                <script>
+                                    function openReport() {
+                                        flg_report = true;
+                                        reportDisplay()
+
+                                        let iframe = document.getElementById('report1');
+
+                                        let select = '0000'
+                                        var checkbox1 = document.getElementById("checkbox1").checked ? 1 : 0;
+                                        var checkbox2 = document.getElementById("checkbox2").checked ? 1 : 0;
+                                        var checkbox3 = document.getElementById("checkbox3").checked ? 1 : 0;
+                                        var checkbox4 = document.getElementById("checkbox4").checked ? 1 : 0;
+
+                                        select = checkbox1.toString() + checkbox2.toString() + checkbox3.toString() + checkbox4.toString();
+                                        console.log('select测试', select);  // 打印生成的select变量
+
+                                        iframe.src = "/data_analyze?select=" + select;
+                                        iframe.style.display = 'block'
+                                        iframe.style.border = '2px #000'
+
+                                    }
+
+                                    function reportDisplay() {
+                                        if (flg_report === true) {
+                                            document.getElementById('chartContainer').style.display = 'none'
+                                            document.getElementById('dialogContainer').style.display = 'none'
+                                            document.getElementById('buttonsContainer').style.display = 'block'
+                                        } else {
+                                            openReport();
+                                        }
+                                    }
+
+                                    function linechart() {
+                                        if (flg_predict === true) {
+                                            document.getElementById('chartContainer').style.display = 'block'
+                                            document.getElementById('dialogContainer').style.display = 'none'
+                                            document.getElementById('buttonsContainer').style.display = 'none'
+                                        } else {
+                                            initmychart();
+                                        }
+                                    }
+
+                                </script>
+
+                                <!--预测功率-->
+                                <button id="predictionBtn" onclick="linechart()"
+                                        style="width: 80%;height: auto;border-radius: 10px;font-weight: bold;background: white;margin-bottom: 10%;margin-left: 10%"
+                                >
+                                    <i class="my_typcn typcn-device-laptop"></i><br>预测功率
+                                </button>
+                                <script>
+                                    function initmychart() {
+                                        flg_predict = true;
+                                        linechart()
+                                        myChart.dispose();
+                                        myChart.clear();
+                                        var aitextarea = document.getElementById('aianswer');
+                                        var linechartdom = document.getElementById('linechart');
+                                        myChart = echarts.init(linechartdom, null, {renderer: 'svg'});
+                                        myChart.showLoading();
+                                        // 在这里发送请求到后端获取数据并绘图
+                                        let json_data;
+                                        fetch('/online_predict')
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                json_data = data;
+                                                console.log(json_data)
+                                                var myChart = echarts.init(linechartdom, null, {renderer: 'svg'});
+                                                // 指定图表的配置项和数据
+                                                var datatime = json_data.DATATIME;
+                                                var yd15 = json_data.PRE_YD15;
+                                                var power = json_data.PRE_POWER;
+                                                var option = {
+                                                    tooltip: {
+                                                        trigger: 'axis',
+                                                        position: 'left'
+                                                    },
+                                                    legend: {
+                                                        data: ['发电功率预测', '供电功率预测']
+                                                    },
+                                                    grid: {
+                                                        left: '3%',
+                                                        right: '4%',
+                                                        bottom: '3%',
+                                                        containLabel: true
+                                                    },
+                                                    toolbox: {
+                                                        feature: {
+                                                            saveAsImage: {}
+                                                        }
+                                                    },
+                                                    xAxis: {
+                                                        type: 'category',
+                                                        boundaryGap: false,
+                                                        data: datatime
+                                                    },
+                                                    yAxis: {
+                                                        type: 'value'
+                                                    },
+                                                    series: [
+                                                        {
+                                                            name: '发电功率预测',
+                                                            type: 'line',
+                                                            data: power,
+                                                            animation: true
+                                                        },
+                                                        {
+                                                            name: '供电功率预测',
+                                                            type: 'line',
+                                                            data: yd15,
+                                                            animation: true
+                                                        },
+                                                    ]
+                                                };
+                                                myChart.hideLoading();
+                                                myChart.setOption(option);
+
+                                                aitextarea.value = '预测完成~';
+                                            })
+                                            .catch(error => {
+                                                console.error('获取数据时发生错误:', error);
+                                            });
+                                    }
+
+                                    // initmychart()
+                                </script>
+
+                                <!--AI分析对话-->
+                                <button id="aiBtn" onclick="dialogDisplay()"
+                                        style="width: 80%;height: auto;border-radius: 10px;font-weight: bold;background: white;margin-bottom: 10%;margin-left: 10%">
+                                    <i class="my_typcn typcn-zoom"></i><br>AI分析
+                                </button>
+                                <script>
+                                    async function aiAnalyze() {
+                                        flg_ai = true;
+                                        dialogDisplay()
+                                        // var aitextarea = document.getElementById('aianswer');
+                                        // aitextarea.value = '正在分析...';
+                                        let json_data;
+                                        fetch('/gptapi_analyze')
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                json_data = data;
+                                                var ans = json_data.ans;
+                                                // aitextarea.value = ans;
+                                            })
+                                        let iframe = document.getElementById('dialog');
+                                        // iframe.src = "https://issy.store";
+                                        iframe.src = "/dialog";
+                                        iframe.style.display = 'block'
+                                        iframe.style.border = '2px #000'
+                                    }
+
+                                    async function initDialog() {
+                                        let iframe = document.getElementById('dialog');
+                                        iframe.src = "http://127.0.0.1:5000/";
+                                    }
+
+                                    function dialogDisplay() {
+                                        if (flg_ai === true) {
+                                            document.getElementById('buttonsContainer').style.display = 'none'
+                                            document.getElementById('chartContainer').style.display = 'none'
+                                            document.getElementById('dialogContainer').style.display = 'block'
+                                        } else {
+                                            aiAnalyze();
+                                        }
+
+                                    }
+                                </script>
+
+                                <!--下载结果-->
+                                <button id="downloadBtn" onclick="linechart()"
+                                        style="width: 80%;height: auto;border-radius: 10px;font-weight: bold;background: white;margin-bottom: 10%;margin-left: 10%">
+                                    <a href="/download_resfile" id="fileDownload"
+                                       style="text-decoration: none;color: black"><i
+                                            class="my_typcn typcn-download"></i><br>下载结果</a>
+                                </button>
+                                <script>
+                                    document.getElementById('downloadBtn').addEventListener('click', function () {
+                                        document.getElementById('fileDownload').click();
+                                    });
+                                    document.getElementById('sidebar-download').addEventListener('click', function () {
+                                        document.getElementById('fileDownload').click();
+                                    });
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-9 grid-margin  stretch-card" id="right">
+                        <div class="card">
+                            <div class="card-body w-100 p-0 chartContainer" id="chartContainer"
+                                 style="width: 100%;height: 550px;">
+                                <div class="row w-100 d-flex align-items-center justify-content-center h-100">
+                                    <div class="col-12 d-flex justify-content-center align-items-center"
+                                         style="width: 100%;height: 70%">
+                                        <div class=" w-100 h-100" id="linechart">
+                                            <script>
+                                                var myChart = echarts.init(document.getElementById('linechart'), null, {renderer: 'svg'});
+
+                                                function example_linechart() {
+                                                    // 指定图表的配置项和数据
+                                                    var option = {
+                                                        tooltip: {
+                                                            trigger: 'axis',
+                                                            position: 'left'
+                                                        },
+                                                        legend: {
+                                                            data: ['示例曲线1', '示例曲线2']
+                                                        },
+                                                        grid: {
+                                                            left: '3%',
+                                                            right: '4%',
+                                                            bottom: '3%',
+                                                            containLabel: true
+                                                        },
+                                                        toolbox: {
+                                                            feature: {
+                                                                saveAsImage: {}
+                                                            }
+                                                        },
+                                                        xAxis: {
+                                                            type: 'category',
+                                                            boundaryGap: false,
+                                                            data: [1, 2, 3, 4, 5]
+                                                        },
+                                                        yAxis: {
+                                                            type: 'value'
+                                                        },
+                                                        series: [
+                                                            {
+                                                                name: '示例曲线1',
+                                                                type: 'line',
+                                                                data: [2, 4, 6, 13, 18]
+                                                            },
+                                                            {
+                                                                name: '示例曲线2',
+                                                                type: 'line',
+                                                                data: [1, 2, 3, 4, 5]
+                                                            },
+                                                        ]
+                                                    };
+                                                    myChart.setOption(option)
+                                                }
+
+                                                example_linechart();
+
+                                            </script>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-center align-items-center"
+                                         style="width: 100%;height: auto">
+                                        <textarea class="text-center" id="aianswer" readonly
+                                                  style="width: 100%;border: none">  Hi，您好，欢迎使用风电功率预测与分析服务。
+                                        </textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="card-body w-100 p-0 dialogContainer" id="dialogContainer"
+                                 style="width: 100%;height: 550px;display: none;">
+                                <iframe id="dialog" style="width: 100%;height: 100%;display: none;border: #c4c4c4">
+                                </iframe>
+                            </div>
+                            <div class="card-body w-100 p-0 buttonsContainer" id="buttonsContainer"
+                                 style="width: 100%;height: 550px;display: none;">
+                                <!--                                <div class="col-12 d-flex justify-content-center align-items-center"-->
+                                <!--                                     style="height: 10%!important;">-->
+                                <div class="row mb-2 mt-2 flex-grow justify-content-center align-items-center d-flex"
+                                     style="height: 15%">
+                                    <div class="col-xl-4 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                        <div class="col-lg-6 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                            <label>
+                                                <input id="checkbox1" type="checkbox">
+                                                <span style="font-weight: bold">空缺值填充</span>
+                                            </label>
+
+                                        </div>
+                                        <div class="col-lg-6 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                            <label>
+                                                <input id="checkbox2" type="checkbox">
+                                                <span style="font-weight: bold">离群点修正</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-4 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                        <div class="col-lg-6 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                            <label>
+                                                <input id="checkbox3" type="checkbox">
+                                                <span style="font-weight: bold">重复值去除</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-6 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                            <label>
+                                                <input id="checkbox4" type="checkbox">
+                                                <span style="font-weight: bold">数据重采样</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-xl-2 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                        <div class="col-lg-12 px-0 pr-0 d-flex justify-content-center align-items-center">
+                                            <button class="btn-tmp" onclick="openReport()">
+                                                提交更改
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--                                </div>-->
+                                <div class="card-body w-100 p-0 d-flex justify-content-center align-items-center"
+                                     style="height: 80%">
+                                    <iframe id="report1"
+                                            style="width: 100%;height: 100%;display: none;border: #c4c4c4">
+                                    </iframe>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder">
+
+            </div>
+            <!-- main-panel ends -->
+        </div>
+        {% else %}
+        <!--        没登录啥都不显示-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <span style="text-align: center;font-size: 40px">
+                    <a href="/">请登录</a>
+                </span>
+            </div>
+        </div>
+        {% endif %}
+        <!-- page-body-wrapper ends -->
+    </div>
+</div>
+<!-- container-scroller -->
+<!-- base:js -->
+<script>
+    window.addEventListener('resize', function () {
+        var myChart = echarts.init(document.getElementById('linechart'), null, {renderer: 'svg'});
+        myChart.setOption({
+            tooltip: {
+                position: ['50%', '50%']
+            }
+        })
+        myChart.resize();
+    });
+</script>
+<script src="../static/js/vendor.bundle.base.js"></script>
+<script src="../static/js/off-canvas.js"></script>
+<script src="../static/js/hoverable-collapse.js"></script>
+<script src="../static/js/template.js"></script>
+<script src="../static/js/settings.js"></script>
+<script src="../static/js/todolist.js"></script>
+<script src="../static/js/progressbar.min.js"></script>
+<script src="../static/js/Chart.min.js"></script>
+<script src="../static/js/dashboard.js"></script>
+<script src="../static/js/bootstrap.min.js"></script>
+<script src="../static/js/isotope.pkgd.min.js"></script>
+<script src="../static/js/owl.carousel.min.js"></script>
+<script src="../static/js/slick.min.js"></script>
+<script src="../static/js/imagesloaded.pkgd.min.js"></script>
+<script src="../static/js/venobox.min.js"></script>
+<script src="../static/js/jquery.appear.js"></script>
+<script src="../static/js/jquery.knob.js"></script>
+<script src="../static/js/theme-pluginjs.js"></script>
+<script src="../static/js/jquery.meanmenu.js"></script>
+<script src="../static/js/ajax-mail.js"></script>
+<script src="../static/js/theme.js"></script>
+<script src="../static/js/nav-footer_loader.js"></script>
+</body>
+</html>

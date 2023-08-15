@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>离线应用-油专特供</title>
+    <!-- base:css -->
+    <link href="../static/css/typicons.css" rel="stylesheet">
+    <link href="../static/css/vendor.bundle.base.css" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../static/js/modernizr-2.8.3.min.js"></script>
+    <script src="../static/js/jquery.js"></script>
+
+
+
+</head>
+<body>
+<i id="bannerClose"></i>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo" href="/"><img alt="logo" src="static/picture/logo.svg"></a>
+            <a class="navbar-brand brand-logo-mini" href="/"><img alt="logo" src="static/picture/logo-mini.svg"></a>
+            <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" data-toggle="minimize"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if sdk %}
+                    <span>您已经拥有密钥，<a href="/check_sdk">点此查看</a></span>
+                    {% else %}
+                    <span>您尚未获取密钥，
+                        <a href="/newsdk_offline">点此申请</a>
+                    </span>
+                    {% endif %}
+
+
+                </li>
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if username %}
+                    <span style="font-weight: bold">欢迎您, {{ username }}</span>
+                    <a class="nav-link" href="/logout">
+                        退出登录
+                    </a>
+                    {% else %}
+                    <span style="font-weight: bold;--xr-font-color0: true">您好, 请</span>
+                    <a class="nav-link" href="/">
+                        点此登录
+                    </a>
+                    {% endif %}
+                </li>
+            </ul>
+
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" data-toggle="offcanvas"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <div id="nav-placeholder">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+
+            </nav>
+        </div>
+        {% if username %}
+        <!-- partial -->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="about_area">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-xl-6 stretch-card">
+                                <div class="about_left">
+                                    <div class="about_image">
+                                        <img alt="About Image" src="../static/picture/exe1.jpg"
+                                             style="max-width: 90%;max-height: 90%" width=95%>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6 stretch-card">
+                                <div class="about_cont">
+                                    <div class="about_cont_inner">
+                                        <div class="witr_section_title">
+                                            <div>
+                                                <h2 style="margin-top:20px;margin-bottom:20px;font-family: 方正粗黑宋简体;font-size: 50px">
+                                                    离线版本V3.0！</h2>
+                                                <h3 style="margin-top:20px;margin-bottom:20px;font-size: 25px">
+                                                    您的风场隐私安全，我来守护！</h3>
+                                                <p style="margin-top:20px;margin-bottom:20px;font-size: 18px">
+                                                    风电功率预测系统油专特供offline作为一款主打风场数据隐私保护的软件，可以实现本地离线训练并预测功率或直接预测功率，且能够将预测后的数据集导出，整个流程中数据无需上传到服务器。不仅如此，我们还开发了预测结果可视化功能，方便您观测功率的变化趋势。</p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-6" style="width: 50%">
+                                                <div class="witr_counter_single">
+                                                    <div class="witr_counter_img">
+
+                                                        <img alt="Icon" height=23% src="static/picture/download.png"
+                                                             width=23%>
+
+                                                    </div>
+                                                    <div class="witr_counter_number_inn">
+                                                        <h4 style="margin-top:10px;margin-bottom:10px;">累计</h4>
+                                                        <h3 class="counter"
+                                                            style="margin-top:10px;margin-bottom:10px;">1000</h3>
+                                                        <h4 style="margin-top:10px;margin-bottom:10px;">
+                                                            余次下载</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-sm-6" style="width: 50%">
+                                                <div class="witr_counter_single">
+                                                    <div class="witr_counter_img">
+                                                        <img alt="Icon" height=23%
+                                                             src="static/picture/cooperation.png" width=23%>
+                                                    </div>
+                                                    <div class="witr_counter_number_inn">
+                                                        <h4 style="margin-top:10px;margin-bottom:10px;">累计</h4>
+                                                        <h3 class="counter"
+                                                            style="margin-top:10px;margin-bottom:10px;">19</h3>
+                                                        <h4 style="margin-top:10px;margin-bottom:10px;">
+                                                            家合作企业</h4>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="margin-top:50px;margin-bottom:50px;">
+                                            <a class="btn btn-secondary" href="/download_offine_soft">下载应用</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder">
+
+            </div>
+        </div>
+        <!-- main-panel ends -->
+        {% else %}
+        <!--        没登录啥都不显示-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <span style="text-align: center;font-size: 40px">
+                    <a href="/">请登录</a>
+                </span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+<!-- container-scroller -->
+<!-- base:js -->
+<script src="../static/js/vendor.bundle.base.js"></script>
+<script src="../static/js/off-canvas.js"></script>
+<script src="../static/js/nav-footer_loader.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>API使用文档-油专特供</title>
+    <link href="../static/css/typicons.css" rel="stylesheet">
+    <link href="../static/css/vendor.bundle.base.css" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
+    <script src="../static/js/jquery.js"></script>
+</head>
+<body>
+<i id="bannerClose"></i>
+<div class="container-scroller">
+    <!-- partial:partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo" href=""><img alt="logo" src="static/picture/logo.svg"></a>
+            <a class="navbar-brand brand-logo-mini" href=""><img alt="logo" src="static/picture/logo-mini.svg"></a>
+            <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" data-toggle="minimize"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if sdk %}
+                    <span>您已经拥有密钥，<a href="/check_sdk">点此查看</a></span>
+                    {% else %}
+                    <span>您尚未获取密钥，
+                        <a href="/newsdk_api">点此申请</a>
+                    </span>
+                    {% endif %}
+
+
+                </li>
+
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if username %}
+                    <span style="font-weight: bold">欢迎您, {{ username }}</span>
+                    <a class="nav-link" href="/logout">
+                        退出登录
+                    </a>
+                    {% else %}
+                    <span style="font-weight: bold;--xr-font-color0: true">您好, 请</span>
+                    <a class="nav-link" href="/">
+                        点此登录
+                    </a>
+                    {% endif %}
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" data-toggle="offcanvas"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_settings-panel.html -->
+        <div class="theme-setting-wrapper">
+
+            <div class="settings-panel" id="theme-settings">
+                <i class="settings-close typcn typcn-delete-outline"></i>
+                <p class="settings-heading">SIDEBAR SKINS</p>
+                <div class="sidebar-bg-options" id="sidebar-light-theme">
+                    <div class="img-ss rounded-circle bg-light border mr-3"></div>
+                    Light
+                </div>
+                <div class="sidebar-bg-options selected" id="sidebar-dark-theme">
+                    <div class="img-ss rounded-circle bg-dark border mr-3"></div>
+                    Dark
+                </div>
+                <p class="settings-heading mt-2">HEADER SKINS</p>
+                <div class="color-tiles mx-0 px-4">
+                    <div class="tiles success"></div>
+                    <div class="tiles warning"></div>
+                    <div class="tiles danger"></div>
+                    <div class="tiles primary"></div>
+                    <div class="tiles info"></div>
+                    <div class="tiles dark"></div>
+                    <div class="tiles default border"></div>
+                </div>
+            </div>
+        </div>
+        <!-- partial -->
+        <!-- partial:partials/_sidebar.html -->
+        <div id="nav-placeholder">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+
+            </nav>
+        </div>
+        {% if username %}
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div style="background: white;width: 100%;height: 100%">
+                    <h1 class="title_1 p-0" style="margin-left: 0!important;margin-right: 0!important;">Python SDK文档</h1>
+                    <div id="api-doc-content" >
+                        <h2 class="title_2">简介</h2>
+                        <h3 class="title_3">Hi，您好，欢迎使用风电功率预测与分析服务。<br>
+                            本文档主要针对Python开发者，描述预测与分析接口服务的相关技术内容。如果您对文档内容有任何疑问，可以通过liuyuange811@gmail.com或luodaobin2001@gmail.com联系我们，或进入<a
+                                    href="https://github.com/962516016/windpower_upc">API主页</a>交流。
+                        </h3>
+                        <h2 class="title_2" >参数详情</h2>
+                        <h3 class="title_3" >SDK客户端主要包括processing_data、save_predict_file、ai_analysis三大模块，分别用于数据分析和预处理、模型训练预测及可视化、AI智能分析。
+                        </h3>
+                        <h3 class="title_3">processing_data模块
+                        </h3>
+                        <table class="api_table d-flex align-items-center justify-content-start" style="margin-left: 25px!important;margin-right: 25px!important;">
+                            <tr style="background: lightgray">
+                                <td style="font-weight: bold">参数名称</td>
+                                <td style="font-weight: bold">是否必选</td>
+                                <td style="font-weight: bold">类型</td>
+                                <td style="font-weight: bold">说明</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">csv_file</td>
+                                <td>是</td>
+                                <td style="font-family: Courier New,serif;">str</td>
+                                <td>通过该参数选择数据集路径</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">fill</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否对0值进行重新填充</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">deduplication</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否进行数据去重</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">outlier</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否对离群点检测并修正</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">normal</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否对数据进行归一化处理</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">resample</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否对缺失时间点的数据进行重采样</td>
+                            </tr>
+                        </table>
+                        </h3>
+                        <h3 class="title_3">save_predict_file模块
+                        </h3>
+                        <table class="api_table d-flex align-items-center justify-content-start" style="margin-left: 25px!important;margin-right: 25px!important;">
+                            <tr style="background: lightgray">
+                                <td style="font-weight: bold">参数名称</td>
+                                <td style="font-weight: bold">是否必选</td>
+                                <td style="font-weight: bold">类型</td>
+                                <td style="font-weight: bold">说明</td>
+                            </tr>
+
+                            <tr>
+                                <td style="font-family: Courier New,serif;">csv_file</td>
+                                <td>是</td>
+                                <td style="font-family: Courier New,serif;">str</td>
+                                <td>通过该参数选择数据集路径</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">figure</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否导出可视化图片</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">file</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否导出预测后的表格文件</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">train</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择训练并预测/预训练模型直接预测</td>
+                            </tr>
+                        </table>
+                        </h3>
+                        <h3 class="title_3">ai_analysis模块
+                        </h3>
+                        <table class="api_table d-flex align-items-center justify-content-start w-auto" style="margin-left: 25px!important;margin-right: 25px!important;">
+                            <tr style="background: lightgray">
+                                <td style="font-weight: bold">参数名称</td>
+                                <td style="font-weight: bold">是否必选</td>
+                                <td style="font-weight: bold">类型</td>
+                                <td style="font-weight: bold">说明</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">csv_file</td>
+                                <td>是</td>
+                                <td style="font-family: Courier New,serif;">str</td>
+                                <td>通过该参数选择数据集路径</td>
+                            </tr>
+                            <tr>
+                                <td style="font-family: Courier New,serif;">ai</td>
+                                <td>否</td>
+                                <td style="font-family: Courier New,serif;">bool</td>
+                                <td>通过该参数选择是否对结果进行AI智能分析</td>
+                            </tr>
+                        </table>
+                        <h2 class="title_2">快速入门</h2>
+
+                        <h3 class="title_2_5">风电功率预测与分析服务</h3>
+                        <h3 class="title_2_5">Python SDK目录结构</h3>
+
+                        <pre class="pre p-0 w-auto d-flex justify-content-center align-items-center" style="margin-left: 25px!important;margin-right: 25px!important;">
+                            <code class="code p-0 m-0" style="margin-left: 0!important;margin-right: 0!important;">
+ ├── README.md
+ ├── windpower_upc                               //SDK目录
+ │   ├── __init__.py                             //导出类
+ │   ├── windpower_upc.py                        //windpower基类
+ │   └── LICENSE                                 //开源许可协议
+ └── setup.py                                    //setuptools安装
+
+</code></pre>
+                        <h3 class="title_2_5">安装 Python SDK</h3>
+                        <h3 class="title_3">安装使用Python SDK有如下方式：<br>
+                            ●如果已安装pip，执行pip install windpower_upc即可。<br>
+                            ●如果已安装setuptools，执行python setup.py install即可。</h3>
+                        <h3 class="title_2_5">使用方法简介</h3>
+                        <h3 class="title_3">windpowerapi是风电功率预测与分析的Python
+                            SDK客户端，为使用风电功率预测与分析的开发人员提供了一系列的交互方法。
+                            参考如下代码<br>新建一个windpowerapi.py：
+                        </h3>
+                        <pre class="pre p-0 w-auto" style="margin-left: 25px!important;margin-right: 25px!important;">
+                            <code class="code p-0 m-0" style="margin-left: 0!important;margin-right: 0!important;">
+ import windpower_upc as wp
+
+ api_url = 'http://localhost:5446/windpowerapi'
+ api_key = 'your API_KEY'
+ filepath = '数据集路径'
+ api = wp.windpowerapi(api_url, api_key)
+
+ # 对数据集进行预测并保存结果文件
+ api.savepredictfile(filepath, figure=False, file=True, train=False)
+ api.savepredictfile(filepath, figure=True, file=False, train=False)
+
+ # 对数据集进行预测并保存处理后的结果文件
+ api.processingdata(filepath, fill=True, outlier=True, normal=False, resample=True, deduplication=True)
+
+ # 对预测的数据集进行AI分析
+ api.aianalysis(csv_file='predictions.csv', ai=True)
+</code></pre>
+                        <h3 class="title_3 mb-5 pb-5">
+                            在上面代码中，API_KEY是系统分配给用户的，为字符串，用于标识用户，为访问做签名验证，可在个人中心查看。</h3>
+                    </div>
+                </div>
+            </div>
+            <div id="footer-placeholder">
+
+            </div>
+        </div>
+        {% else %}
+        <!--        没登录啥都不显示-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <span style="text-align: center;font-size: 40px">
+                    <a href="/">请登录</a>
+                </span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="../static/js/vendor.bundle.base.js"></script>
+<script src="../static/js/off-canvas.js"></script>
+<script src="../static/js/hoverable-collapse.js"></script>
+<script src="../static/js/template.js"></script>
+<script src="../static/js/settings.js"></script>
+<script src="../static/js/todolist.js"></script>
+<script src="../static/js/progressbar.min.js"></script>
+<script src="../static/js/Chart.min.js"></script>
+<script src="../static/js/dashboard.js"></script>
+<script src="../static/js/nav-footer_loader.js"></script>
+</body>
+</html>

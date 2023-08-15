@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+    <title>日志管理(管理员)-油专特供</title>
+    <!-- base:css -->
+    <link href="../static/css/typicons.css" rel="stylesheet">
+    <link href="../static/css/vendor.bundle.base.css" rel="stylesheet">
+    <link href="../static/css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="../static/js/jquery.js"></script>
+    <script src="../static/js/echarts.js"></script>
+</head>
+
+<body>
+<i id="bannerClose"></i>
+<div class="container-scroller">
+    <!-- partial:../../partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+        <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+            <a class="navbar-brand brand-logo" href=""><img alt="logo" src="static/picture/logo.svg"></a>
+            <a class="navbar-brand brand-logo-mini" href=""><img alt="logo" src="static/picture/logo-mini.svg"></a>
+            <button class="navbar-toggler navbar-toggler align-self-center d-none d-lg-flex" data-toggle="minimize"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+        <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
+            <ul class="navbar-nav navbar-nav-right">
+                <li class="nav-item d-none d-lg-flex  mr-2">
+                    {% if username %}
+                    <span style="font-weight: bold">欢迎您, {{ username }}</span>
+                    <a class="nav-link" href="/logout">
+                        退出登录
+                    </a>
+                    {% else %}
+                    <span style="font-weight: bold;--xr-font-color0: true">您好, 请</span>
+                    <a class="nav-link" href="/">
+                        点此登录
+                    </a>
+                    {% endif %}
+            </ul>
+            <button class="navbar-toggler navbar-toggler-right d-lg-none align-self-center" data-toggle="offcanvas"
+                    type="button">
+                <span class="typcn typcn-th-menu"></span>
+            </button>
+        </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+        <!--        导航栏，主题-->
+        <div id="nav-placeholder">
+            <nav class="sidebar sidebar-offcanvas" id="sidebar">
+
+            </nav>
+        </div>
+        {% if username %}
+        <!--        主界面区域-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <div class="row">
+                    <div class="col-lg-6 grid-margin  stretch-card">
+                        <div class="card">
+                            <div class="card-body">
+                                <div>
+                                    <h4 class="card-title">日志操作记录-ALL</h4>
+                                </div>
+                                <div class="table-responsive1">
+                                    <table class="table table-hover" id="log_table">
+                                        <thead>
+                                        <tr>
+                                            <th class="text-lg-center">序号</th>
+                                            <th class="text-lg-center">用户</th>
+                                            <th class="text-lg-center">操作时间</th>
+                                            <th class="text-lg-center">调用功能</th>
+                                            <th class="text-lg-center">备注</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <script>
+                                    function updatetable() {
+                                        axios.get('/get_log')
+                                            .then(res => {
+                                                let cnt = res.data.cnt;
+                                                let list = res.data.log;
+                                                console.log(list)
+
+                                                // 获取表格的tbody元素
+                                                var tableBody = document.querySelector('#log_table tbody');
+                                                tableBody.innerHTML = '';
+                                                // 遍历文件名列表，生成表格行并添加到表格中
+                                                for (let i = 0; i < cnt; i++) {
+                                                    const row = document.createElement('tr');
+
+                                                    const cell0 = document.createElement('td');
+                                                    cell0.textContent = i + 1;
+                                                    cell0.align = 'center'
+                                                    row.appendChild(cell0);
+
+                                                    const user = list[i][0];
+                                                    const cell0_5 = document.createElement('td');
+                                                    cell0_5.textContent = user;
+                                                    cell0_5.align = 'center'
+                                                    row.appendChild(cell0_5);
+
+                                                    const operate_time = list[i][1];
+                                                    const cell1 = document.createElement('td');
+                                                    cell1.textContent = operate_time;
+                                                    cell1.align = 'center'
+                                                    row.appendChild(cell1);
+
+                                                    const api = list[i][2];
+                                                    const cell2 = document.createElement('td');
+                                                    cell2.textContent = api;
+                                                    cell2.align = 'center'
+                                                    row.appendChild(cell2);
+
+                                                    const note = list[i][3];
+                                                    const cell3 = document.createElement('td');
+                                                    cell3.textContent = note;
+                                                    cell3.align = 'center'
+                                                    row.appendChild(cell3);
+
+                                                    tableBody.appendChild(row);
+                                                }
+                                            })
+                                            .catch(err => {
+                                                console.error('axios请求错误' + err)
+                                            })
+                                    }
+
+                                    updatetable()
+                                </script>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 grid-margin  stretch-card">
+                        <div class="card">
+                            <div class="card-body" style="min-height: 500px">
+                                <h4 class="card-title">用户操作使用分析</h4>
+                                <div class="row-lg-6 stretch-card h-auto ">
+                                    <div class="card ">
+                                        <div class="card-body ">
+                                            <h4 class="card-title">功能调用次数分布</h4>
+                                            <div class="logcntchart " id="api-count-chart">
+                                                <script>
+                                                    function api_count() {
+                                                        var apiCountDom = document.getElementById('api-count-chart')
+                                                        var apiCountChart = echarts.init(apiCountDom, null, {renderer: 'svg'});
+
+                                                        const url = '/get_apicount?' + 'username={{username}}'
+
+                                                        // GET请求
+                                                        axios.get(url)
+                                                            .then(res => {
+                                                                const apicount = res.data.apicount;
+                                                                const cnt = res.data.cnt;
+                                                                const apilist = res.data.apilist;
+
+                                                                let apicnt = [];
+                                                                let data = [];
+                                                                for (let i = 0; i < cnt; i++) {
+                                                                    apicnt.push(parseInt(apicount[i]));
+                                                                    let item = {}
+                                                                    item['value'] = apicount[i]
+                                                                    item['name'] = apilist[i]
+                                                                    data.push(item)
+                                                                }
+                                                                console.log(data)
+                                                                // 指定图表的配置项和数据
+                                                                option = {
+                                                                    tooltip: {
+                                                                        trigger: 'item'
+                                                                    },
+                                                                    legend: {
+                                                                        top: '0%',
+                                                                        left: 'center'
+                                                                    },
+                                                                    series: [
+                                                                        {
+                                                                            name: '功能调用次数',
+                                                                            type: 'pie',
+                                                                            radius: ['40%', '70%'],
+                                                                            center: ['50%', '60%'],
+                                                                            avoidLabelOverlap: false,
+                                                                            itemStyle: {
+                                                                                borderRadius: 10,
+                                                                                borderColor: '#fff',
+                                                                                borderWidth: 2
+                                                                            },
+                                                                            label: {
+                                                                                show: false,
+                                                                                position: 'center'
+                                                                            },
+                                                                            emphasis: {
+                                                                                label: {
+                                                                                    show: true,
+                                                                                    fontSize: 40,
+                                                                                    fontWeight: 'bold'
+                                                                                }
+                                                                            },
+                                                                            labelLine: {
+                                                                                show: false
+                                                                            },
+                                                                            data: data
+                                                                        }
+                                                                    ]
+                                                                };
+                                                                apiCountChart.setOption(option)
+                                                                window.onresize = function () {
+                                                                    apiCountChart.resize();
+                                                                }
+                                                            })
+                                                            .catch(err => {
+                                                                console.error('axios请求错误' + err)
+                                                            })
+                                                    }
+
+                                                    api_count()
+
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row-lg-6  stretch-card">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h4 class="card-title" >使用时段分析</h4>
+                                            <div class="timechart w-auto stretch-card" id="timechart" >
+                                                <script>
+                                                    var chartDom = document.getElementById('timechart');
+                                                    var myChart = echarts.init(chartDom, null, {renderer: 'svg'});
+                                                    const url = '/get_timeapicount?' + 'username={{username}}'
+
+
+                                                    // 获取标签元素
+                                                    var labelElement = document.getElementById('timechart'); // 替换'labelId'为你实际标签的ID
+
+                                                    // 获取标签元素的位置和尺寸信息
+                                                    var labelRect = labelElement.getBoundingClientRect();
+
+                                                    // 获取标签元素的宽度和高度
+                                                    var labelWidth = labelRect.width;
+                                                    var labelHeight = labelRect.height;
+
+                                                    var cellSize = [labelWidth / 7.5, labelHeight / 6.0];
+                                                    var daydata;
+
+
+                                                    function timechart() {
+                                                        var option;
+
+                                                        axios.get(url)
+                                                            .then(res => {
+                                                                daydata = res.data.daydata;
+                                                                console.log(daydata)
+
+                                                                function getVirtualData() {
+                                                                    const date = +echarts.time.parse('2023-08-01');
+                                                                    const end = +echarts.time.parse('2023-09-01');
+                                                                    const dayTime = 3600 * 24 * 1000;
+                                                                    const data = [];
+                                                                    let d = 0;
+                                                                    for (let time = date; time < end; time += dayTime) {
+                                                                        const day = echarts.time.format(time, '{yyyy}-{MM}-{dd}', false);
+                                                                        const pieData = [
+                                                                            {
+                                                                                name: '上传数据',
+                                                                                value: daydata[d][0],
+                                                                            },
+                                                                            {
+                                                                                name: '数据分析',
+                                                                                value: daydata[d][1]
+                                                                            },
+                                                                            {
+                                                                                name: '预测功率',
+                                                                                value: daydata[d][2]
+                                                                            },
+                                                                            {
+                                                                                name: 'AI分析',
+                                                                                value: daydata[d][3]
+                                                                            },
+                                                                            {
+                                                                                name: '下载结果',
+                                                                                value: daydata[d][4]
+                                                                            },
+                                                                            {
+                                                                                name: '上传模型',
+                                                                                value: daydata[d][5]
+                                                                            },
+                                                                            {
+                                                                                name: 'API调用',
+                                                                                value: daydata[d][6]
+                                                                            }
+                                                                        ];
+                                                                        var tmp_r = Math.min(cellSize[0], cellSize[1]) / 2.1
+                                                                        if (daydata[d][0] + daydata[d][1] + daydata[d][2] + daydata[d][3] + daydata[d][4] + daydata[d][5] == 0) {
+                                                                            tmp_r = 0
+                                                                        }
+                                                                        data.push({
+                                                                            date: day,
+                                                                            pieData: pieData,
+                                                                            radius: tmp_r
+                                                                        });
+                                                                        d++;
+                                                                    }
+                                                                    return data;
+                                                                }
+
+                                                                function getLabelData() {
+                                                                    const date = +echarts.time.parse('2023-08-01');
+                                                                    const end = +echarts.time.parse('2023-09-01');
+                                                                    const dayTime = 3600 * 24 * 1000;
+                                                                    const data = [];
+                                                                    let d = 0;
+                                                                    for (let time = date; time < end; time += dayTime) {
+                                                                        data.push([
+                                                                            echarts.time.format(time, '{yyyy}-{MM}-{dd}', false),
+                                                                            daydata[d][0]+daydata[d][1]+daydata[d][2]+daydata[d][3]+daydata[d][4]+daydata[d][5]
+                                                                        ]);
+                                                                        d++;
+                                                                    }
+                                                                    return data;
+                                                                }
+
+                                                                const labelData = getLabelData()
+
+                                                                console.log(labelData)
+                                                                const pData = getVirtualData();
+                                                                const pieSeries = pData.map(function (item) {
+                                                                    return {
+                                                                        type: 'pie',
+                                                                        center: item.date,
+                                                                        radius: item.radius,
+                                                                        coordinateSystem: 'calendar',
+                                                                        label: {
+                                                                            show: false,
+                                                                            formatter: '{c}',
+                                                                            position: 'inside'
+                                                                        },
+                                                                        data: item.pieData
+                                                                    };
+                                                                });
+                                                                option = {
+                                                                    tooltip: {},
+                                                                    legend: {
+                                                                        data: ['Work', 'Entertainment', 'Sleep'],
+                                                                        bottom: 2000
+                                                                    },
+                                                                    calendar: {
+                                                                        top: 'middle',
+                                                                        left: 'center',
+                                                                        orient: 'vertical',
+                                                                        cellSize: cellSize,
+                                                                        yearLabel: {
+                                                                            show: false,
+                                                                            fontSize: 30
+                                                                        },
+                                                                        dayLabel: {
+                                                                            margin: 5,
+                                                                            firstDay: 1,
+                                                                            nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                                                                        },
+                                                                        monthLabel: {
+                                                                            show: false
+                                                                        },
+                                                                        range: ['2023-08']
+                                                                    },
+                                                                    series: [
+                                                                        {
+                                                                            id: 'label',
+                                                                            type: 'scatter',
+                                                                            coordinateSystem: 'calendar',
+                                                                            symbolSize: 0,
+                                                                            label: {
+                                                                                show: true,
+                                                                                formatter: function (params) {
+                                                                                    return echarts.time.format(params.value[0], '{dd}', false);
+                                                                                },
+                                                                                offset: [-cellSize[0] / 2 + 10, -cellSize[1] / 2 + 10],
+                                                                                fontSize: 14
+                                                                            },
+                                                                            data: labelData
+                                                                        },
+                                                                        ...pieSeries
+                                                                    ]
+                                                                };
+
+                                                                option && myChart.setOption(option);
+                                                            })
+                                                            .catch(err => {
+                                                                console.error('axios请求错误' + err)
+                                                            })
+
+                                                    }
+
+                                                    timechart();
+
+                                                    window.addEventListener('resize', function () {
+
+                                                        // 获取标签元素
+                                                        var labelElement = document.getElementById('timechart'); // 替换'labelId'为你实际标签的ID
+
+                                                        // 获取标签元素的位置和尺寸信息
+                                                        var labelRect = labelElement.getBoundingClientRect();
+
+                                                        // 获取标签元素的宽度和高度
+                                                        var labelWidth = labelRect.width;
+                                                        var labelHeight = labelRect.height;
+
+
+                                                        cellSize = [labelWidth / 7.5, labelHeight / 6.0];
+
+                                                        var tmptimechart = echarts.init(document.getElementById('timechart'));
+
+
+                                                        function getVirtualData() {
+                                                            const date = +echarts.time.parse('2023-08-01');
+                                                            const end = +echarts.time.parse('2023-09-01');
+                                                            const dayTime = 3600 * 24 * 1000;
+                                                            const data = [];
+                                                            let d = 0;
+                                                            for (let time = date; time < end; time += dayTime) {
+                                                                const day = echarts.time.format(time, '{yyyy}-{MM}-{dd}', false);
+                                                                const pieData = [
+                                                                    {
+                                                                        name: '上传数据',
+                                                                        value: daydata[d][0],
+                                                                    },
+                                                                    {
+                                                                        name: '数据分析',
+                                                                        value: daydata[d][1]
+                                                                    },
+                                                                    {
+                                                                        name: '预测功率',
+                                                                        value: daydata[d][2]
+                                                                    },
+                                                                    {
+                                                                        name: 'AI分析',
+                                                                        value: daydata[d][3]
+                                                                    },
+                                                                    {
+                                                                        name: '下载结果',
+                                                                        value: daydata[d][4]
+                                                                    },
+                                                                    {
+                                                                        name: '上传模型',
+                                                                        value: daydata[d][5]
+                                                                    },
+                                                                    {
+                                                                        name: 'API调用',
+                                                                        value: daydata[d][6]
+                                                                    }
+                                                                ];
+                                                                var tmp_r = Math.min(cellSize[0], cellSize[1]) / 2.1
+                                                                if (daydata[d][0] + daydata[d][1] + daydata[d][2] + daydata[d][3] + daydata[d][4] + daydata[d][5] == 0) {
+                                                                    tmp_r = 0
+                                                                }
+                                                                data.push({
+                                                                    date: day,
+                                                                    pieData: pieData,
+                                                                    radius: tmp_r
+                                                                });
+                                                                d++;
+                                                            }
+                                                            return data;
+                                                        }
+
+                                                        function getLabelData() {
+                                                            const date = +echarts.time.parse('2023-08-01');
+                                                            const end = +echarts.time.parse('2023-09-01');
+                                                            const dayTime = 3600 * 24 * 1000;
+                                                            const data = [];
+                                                            let d = 0;
+                                                            for (let time = date; time < end; time += dayTime) {
+                                                                data.push([
+                                                                    echarts.time.format(time, '{yyyy}-{MM}-{dd}', false),
+                                                                    daydata[d][0] + daydata[d][1] + daydata[d][2] + daydata[d][3] + daydata[d][4] + daydata[d][5]
+                                                                ]);
+                                                                d++;
+                                                            }
+                                                            return data;
+                                                        }
+
+                                                        const labelData = getLabelData()
+
+                                                        console.log(labelData)
+                                                        const pData = getVirtualData();
+                                                        const pieSeries = pData.map(function (item) {
+                                                            return {
+                                                                type: 'pie',
+                                                                center: item.date,
+                                                                radius: item.radius,
+                                                                coordinateSystem: 'calendar',
+                                                                label: {
+                                                                    show: false,
+                                                                    formatter: '{c}',
+                                                                    position: 'inside'
+                                                                },
+                                                                data: item.pieData
+                                                            };
+                                                        });
+                                                        option = {
+                                                            tooltip: {},
+                                                            legend: {
+                                                                data: [],
+                                                                bottom: 2000
+                                                            },
+                                                            calendar: {
+                                                                top: 'middle',
+                                                                left: 'center',
+                                                                orient: 'vertical',
+                                                                cellSize: cellSize,
+                                                                yearLabel: {
+                                                                    show: false,
+                                                                    fontSize: 30
+                                                                },
+                                                                dayLabel: {
+                                                                    margin: 5,
+                                                                    firstDay: 1,
+                                                                    nameMap: ['周日', '周一', '周二', '周三', '周四', '周五', '周六', '周日']
+                                                                },
+                                                                monthLabel: {
+                                                                    show: false
+                                                                },
+                                                                range: ['2023-08']
+                                                            },
+                                                            series: [
+                                                                {
+                                                                    id: 'label',
+                                                                    type: 'scatter',
+                                                                    coordinateSystem: 'calendar',
+                                                                    symbolSize: 0,
+                                                                    label: {
+                                                                        show: true,
+                                                                        formatter: function (params) {
+                                                                            return echarts.time.format(params.value[0], '{dd}', false);
+                                                                        },
+                                                                        offset: [-cellSize[0] / 2 + 10, -cellSize[1] / 2 + 10],
+                                                                        fontSize: 14
+                                                                    },
+                                                                    data: labelData
+                                                                },
+                                                                ...pieSeries
+                                                            ]
+                                                        };
+                                                        tmptimechart.setOption(option);
+                                                        tmptimechart.resize();
+
+                                                        var tmpapicountchart = echarts.init(document.getElementById('api-count-chart'));
+                                                        tmpapicountchart.resize();
+
+                                                    });
+
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- content-wrapper ends -->
+            <!-- partial:../../partials/_footer.html -->
+            <div id="footer-placeholder">
+
+            </div>
+            <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+        {% else %}
+        <!--        没登录啥都不显示-->
+        <div class="main-panel">
+            <div class="content-wrapper">
+                <span style="text-align: center;font-size: 40px">
+                    <a href="/">请登录</a>
+                </span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <!-- page-body-wrapper ends -->
+</div>
+
+<script src="../static/js/vendor.bundle.base.js"></script>
+<script src="../static/js/off-canvas.js"></script>
+<script src="../static/js/hoverable-collapse.js"></script>
+<script src="../static/js/template.js"></script>
+<script src="../static/js/settings.js"></script>
+<script src="../static/js/todolist.js"></script>
+<script src="../static/js/nav-footer_loader.js"></script>
+
+</body>
+
+</html>
