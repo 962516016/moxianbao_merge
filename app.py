@@ -249,8 +249,8 @@ def get_response_stream_generate_from_ChatGPT_API(message_context, apikey, messa
     print("开始流式请求")
     url = "https://api.openai.com/v1/chat/completions"
     # data_wenxin = message_context[0]['content']
-    # ernie = Ernie('D2ECBD22802BB312F543299B0445E166:FG=1',
-    #               'jlSZnJtOHhQeC1oNDlYUE43ZjlxWXJ6Y2cxVzU2WGFYZkplb35CM0lEaGVad0psRUFBQUFBJCQAAAAAAQAAAAEAAAAfrL4Kz~rJ-cTkvKNzTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAF7a2mRe2tpkU')
+    # ernie = Ernie('***',
+    #               '***')
     # sessionId = ernie.newConversation('风电')
     # 请求接收流式数据 动态print
     try:
